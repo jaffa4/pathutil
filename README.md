@@ -15,6 +15,8 @@ use Path::Util;
 
 
 my $p = Path::Util.new("d:\\docs\\usage.txt");<br>
+It can break-up Unix like or Dos like file paths.<br>
+
 say $p.getdir;<br>
 say $p.getext;<br>
 say $p.getbasename;  # returns the filename without directory<br>
