@@ -1,0 +1,157 @@
+
+class Path::Util;
+
+has $.filename;
+has $.basename;
+has $.justname;
+has $.ext;
+has $.filedir;
+
+ method new($filename) {
+      
+
+  #definitions
+ 
+  my $basename = ($filename ~~ /<[\\\/]>?(<-[\\\/]>+)$/)[0];
+    
+  my $justname =  ($basename ~~ /(<-[\\\/]>+?)[\.<-[.\/\\]>+]?$/)[0];
+  my $ext     =  ($filename ~~ /<[.]>(<-[\\\/.]>+?)$/)[0] ;
+  my $filedir  =  ($filename ~~ /^(.+)<[\\\/]>/).[0] ;
+ 
+  self.bless(filename => $filename, justname => $justname, ext => $ext, filedir => $filedir , basename => $basename);
+}
+
+ Path::Util.new("c:\\g\\b.mp4").print;
+method print
+{
+say "filedir:"~$!filedir;
+say "basename:"~$!basename;
+say "justname:"~$!justname;
+say "ext:"~$!ext;
+}
+
+=begin comment
+sub getfullfilename
+{
+  my $self=shift;
+  return $self->{filename};
+}
+
+sub getbasename
+{
+  my $self=shift;
+
+  if (ref $self)
+  {
+    return $self->{basename};
+  }
+  else
+  {
+     my ($b)= ($self =~ /[\\\/]?([^\\\/]+)$/ );
+   return $b;
+  }
+}
+
+sub getjustname
+{
+  my $self=shift;
+
+  if (ref $self)
+  {
+    return $self->{justname};
+  }
+  else
+  {
+     my ($b)= ($self =~ /[\\\/]?([^\\\/]+?)(?:\.[^.\/\\]+?)?$/ );
+   return $b;
+  }
+}
+
+sub getext
+{
+  my $this=shift;
+  if (ref $this)
+  {
+  return $this->{iext};
+  }
+  else
+  {
+    my ($ext)=$this =~ /[.]([^\\\/.]+?)$/ ;
+    return $ext if defined $ext;
+    return "";
+  }
+  
+}
+
+sub getdir
+{
+  my $this=shift;
+  if (ref $this)
+  {
+    return $this->{filedir};
+  }
+  else
+  {
+    my ($dir)=$this =~ /^(.+)[\\\/]/;
+    if (defined $dir)
+    {
+     $dir=~s/[\\\/]$//;
+    }
+    
+    return $dir;
+  }
+}
+
+sub getnumberofdirlevel
+{
+my $this=shift;
+if (ref $this)
+  {
+    #return $this->{filedir};
+  }
+  else
+  {
+    my $level=0;
+    while ($this =~ /[\\\/](?=.)/g)
+    {
+     $level++;
+    }
+    return $level;
+  }
+}
+
+sub getdirlevel
+{
+my $dirname = shift;
+my $level=shift;
+$level++;
+    while ($dirname =~ /[\\\/](?=.)/g )
+    {
+     $level--;
+     last if $level<=0;
+    }
+if (defined pos($dirname))
+{    
+return substr($dirname,0,pos($dirname)-1);
+}
+else
+{
+return $dirname;
+}
+}
+
+sub separator
+{
+if ($^O=~/linux|unix/)
+   {
+    return '/';
+   }
+ else
+ {
+  return '\\';
+ }  
+}
+
+
+=end comment
+
