@@ -20,7 +20,7 @@ say $p.getext;
 say $p.getbasename;  # returns the filename without directory
 say $p.getjustname;  # returns the filename without directory and extension
 
-#above also work without get
+Above also work without get.
 
 say $p.print; # prints all components
 
