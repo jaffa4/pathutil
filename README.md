@@ -14,11 +14,11 @@ Usage:
 use Path::Util;
 
 
-my $p = Path::Util.new("d:\\docs\\usage.txt");
-say $p.getdir;
-say $p.getext;
-say $p.getbasename;  # returns the filename without directory
-say $p.getjustname;  # returns the filename without directory and extension
+my $p = Path::Util.new("d:\\docs\\usage.txt");<br>
+say $p.getdir;<br>
+say $p.getext;<br>
+say $p.getbasename;  # returns the filename without directory<br>
+say $p.getjustname;  # returns the filename without directory and extension<br>
 
 Above also work without get.
 
