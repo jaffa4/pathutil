@@ -61,7 +61,7 @@ method print {
 }
 
 
-Path::Util.test();
+#Path::Util.test();
 
 
 
