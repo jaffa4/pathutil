@@ -6,143 +6,243 @@ has $.basename;
 has $.justname;
 has $.ext;
 has $.filedir;
+has $.separator;
 
- method new($filename) {
-      
+method extension
+{
+ return $!ext;
+}
+
+method dir
+{
+ return $!filedir;
+}
+
+method directory
+{
+ return $!filedir;
+}
+
+constant $basenamereg = /<[\\\/]>?(<-[\\\/]>+)$/;
+
+constant $justnamereg =/(<-[\\\/]>+?)[\.<-[.\/\\]>+]?$/;
+
+constant $extreg = /<[.]>(<-[\\\/.]>+?)$/;
+
+constant $filedirreg = /^(.+)<[\\\/]>/;
+
+constant $sepreg = /(<[\\\/]>)/;
+
+method new($filename) {
 
   #definitions
+
+  my $basename = ( $filename ~~ $basenamereg ).list[0].Str;
+
+  my $justname = ( $basename ~~ $justnamereg )[0].Str;
+  my $ext      = ( $filename ~~ $extreg )[0].Str;
+  my $filedir  = ( $filename ~~ $filedirreg )[0].Str;
+  my $sep = "";
+  
+  if ($filename ~~ $sepreg )
+  {
+    $sep = $/[0].Str;
+  }
+  
+  self.bless( filename => $filename, justname => $justname, ext => $ext, filedir => $filedir, basename => $basename, separator => $sep );
+}
+
+   
+method print {
+  say "filedir:" ~ $!filedir;
+  say "basename:" ~ $!basename;
+  say "justname:" ~ $!justname;
+  say "ext:" ~$!ext;
+}
+
+
+#Path::Util.test();
+
+
+
+
+method getfullfilename
+{
+  return $!filename;
+}
+
+
+
+
+method getbasename($filename?)
+{
+  if (self)
+  {
+   return $!basename;
+  }
+  else
+  {
+   return ($filename ~~ $basenamereg )[0].Str;
+  }
+}
+
+
+method getseparator($filename?)
+{
+  if (self)
+  {
+   return $!separator;
+  }
+  else
+  {
+   return ($filename ~~ $sepreg )[0].Str;
+  }
+}
+
+
+
+method getjustname($filename?)
+{
  
-  my $basename = ($filename ~~ /<[\\\/]>?(<-[\\\/]>+)$/)[0];
+  if (self)
+  {
+    return $!justname;
+  }
+  else
+  {
     
-  my $justname =  ($basename ~~ /(<-[\\\/]>+?)[\.<-[.\/\\]>+]?$/)[0];
-  my $ext     =  ($filename ~~ /<[.]>(<-[\\\/.]>+?)$/)[0] ;
-  my $filedir  =  ($filename ~~ /^(.+)<[\\\/]>/).[0] ;
- 
-  self.bless(filename => $filename, justname => $justname, ext => $ext, filedir => $filedir , basename => $basename);
+    return (self.getbasename($filename) ~~ $justnamereg )[0].Str;
+  }
 }
 
- Path::Util.new("c:\\g\\b.mp4").print;
-method print
-{
-say "filedir:"~$!filedir;
-say "basename:"~$!basename;
-say "justname:"~$!justname;
-say "ext:"~$!ext;
-}
 
-=begin comment
-sub getfullfilename
-{
-  my $self=shift;
-  return $self->{filename};
-}
 
-sub getbasename
+method getext($filename?)
 {
-  my $self=shift;
-
-  if (ref $self)
+  
+  if (self)
   {
-    return $self->{basename};
+  return $!ext;
   }
   else
   {
-     my ($b)= ($self =~ /[\\\/]?([^\\\/]+)$/ );
-   return $b;
-  }
-}
-
-sub getjustname
-{
-  my $self=shift;
-
-  if (ref $self)
-  {
-    return $self->{justname};
-  }
-  else
-  {
-     my ($b)= ($self =~ /[\\\/]?([^\\\/]+?)(?:\.[^.\/\\]+?)?$/ );
-   return $b;
-  }
-}
-
-sub getext
-{
-  my $this=shift;
-  if (ref $this)
-  {
-  return $this->{iext};
-  }
-  else
-  {
-    my ($ext)=$this =~ /[.]([^\\\/.]+?)$/ ;
-    return $ext if defined $ext;
+    if ($filename ~~ $extreg )
+    {
+      return $/[0].Str;
+    }
     return "";
   }
   
 }
 
-sub getdir
+
+
+
+method getdir($filename?)
 {
-  my $this=shift;
-  if (ref $this)
+  if (self)
   {
-    return $this->{filedir};
+    return $!filedir;
   }
   else
   {
-    my ($dir)=$this =~ /^(.+)[\\\/]/;
-    if (defined $dir)
-    {
-     $dir=~s/[\\\/]$//;
-    }
-    
+    my ($dir)= ( $filename ~~ $filedirreg )[0];  
     return $dir;
   }
 }
 
-sub getnumberofdirlevel
+
+method getnumberofdirlevel($filename?)
 {
-my $this=shift;
-if (ref $this)
+
+my $filenamelocal; 
+if (self)
   {
-    #return $this->{filedir};
+    $filenamelocal=$!filename;
   }
   else
   {
+   $filenamelocal = $filename;
+  }
     my $level=0;
-    while ($this =~ /[\\\/](?=.)/g)
+   # say $filenamelocal;
+  #  my $m =  ($filenamelocal  ~~ m:g/<[\\\/]><before .>/);
+    my @list = comb(/<[\\\/]><before .>/,$filenamelocal);
+ #   say +@list;
+ #   say +$m.lol;
     {
-     $level++;
+     $level+=+@list;
     }
     return $level;
-  }
 }
 
-sub getdirlevel
+
+
+method getdirlevel($level,$dirname?)
 {
-my $dirname = shift;
-my $level=shift;
-$level++;
-    while ($dirname =~ /[\\\/](?=.)/g )
+my $filenamelocal; 
+if (self)
+  {
+    $filenamelocal=$!filename;
+  }
+  else
+  {
+   $filenamelocal = $dirname;
+  }
+
+my $llevel = $level+1;
+#my @list = comb(/<[\\\/]><before .>/,$filenamelocal);
+say $filenamelocal;
+
+    while ( $filenamelocal ~~ m:c/<[\\\/]><before .>/)
     {
-     $level--;
-     last if $level<=0;
+     $llevel--;
+     last if $llevel <= 0;
     }
-if (defined pos($dirname))
+if ($/!~~ Nil)
 {    
-return substr($dirname,0,pos($dirname)-1);
+return substr($filenamelocal,0,$/.to-1);
 }
 else
 {
-return $dirname;
+return $filenamelocal;
 }
 }
 
-sub separator
+method test 
 {
-if ($^O=~/linux|unix/)
+say Path::Util.new("c:\\g\\b.mp4").getfullfilename();
+say Path::Util.new("c:\\g\\b.mp4").print;
+say ".basename:"~Path::Util.new("c:\\g\\b.mp4").basename;
+say "getbasename:"~Path::Util.new("c:\\g\\c.mp4").getbasename();
+say "getbasename2:"~Path::Util.getbasename("c:\\g\\c.mp4");
+
+say "getjustname:"~Path::Util.new("c:\\g\\c.mp4").getjustname();
+say "getjustname2:"~Path::Util.getjustname("c:\\g\\c.mp4");
+
+say "getext:"~Path::Util.new("c:\\g\\c.mp4").getext();
+say "getext2:"~Path::Util.getext("c:\\g\\c.mp4");
+
+say "getdir:"~Path::Util.new("c:\\g\\c.mp4").getdir();
+say "getdir2:"~Path::Util.getdir("c:\\g\\c.mp4");
+
+say "getnumberofdirlevel:"~Path::Util.new("c:\\g\\c.mp4").getnumberofdirlevel();
+say "getnumberofdirlevel2:"~Path::Util.getnumberofdirlevel("c:\\g\\c.mp4");
+say "getdirlevel:"~Path::Util.new("c:\\g\\c.mp4").getdirlevel(0);
+say "getdirlevel2:"~Path::Util.getdirlevel(0,"c:\\g\\c.mp4");
+say "getdirlevel:"~Path::Util.new("c:\\g\\c.mp4").getdirlevel(1);
+say "getdirlevel2:"~Path::Util.getdirlevel(1,"c:\\g\\c.mp4");
+say "getdirlevel:"~Path::Util.new("c:\\g\\c.mp4").getdirlevel(2);
+say "getdirlevel2:"~Path::Util.getdirlevel(2,"c:\\g\\c.mp4");
+say "fsseparator:"~ Path::Util.fsseparator;
+say "separator:"~ Path::Util.new("c:\\g\\c.mp4").separator;
+say "separator2:"~ Path::Util.getseparator("c:\\g\\c.mp4");
+}
+
+
+method fsseparator
+{
+if ($*OS!~~m:i/mswin/)
    {
     return '/';
    }
@@ -153,5 +253,5 @@ if ($^O=~/linux|unix/)
 }
 
 
-=end comment
+
 
