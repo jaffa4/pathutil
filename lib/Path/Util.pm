@@ -6,6 +6,7 @@ has $.basename;
 has $.justname;
 has $.ext;
 has $.filedir;
+has $.separator;
 
 method extension
 {
@@ -30,6 +31,8 @@ constant $extreg = /<[.]>(<-[\\\/.]>+?)$/;
 
 constant $filedirreg = /^(.+)<[\\\/]>/;
 
+constant $sepreg = /(<[\\\/]>)/;
+
 method new($filename) {
 
   #definitions
@@ -39,8 +42,14 @@ method new($filename) {
   my $justname = ( $basename ~~ $justnamereg )[0].Str;
   my $ext      = ( $filename ~~ $extreg )[0].Str;
   my $filedir  = ( $filename ~~ $filedirreg )[0].Str;
-
-  self.bless( filename => $filename, justname => $justname, ext => $ext, filedir => $filedir, basename => $basename );
+  my $sep = "";
+  
+  if ($filename ~~ $sepreg )
+  {
+    $sep = $/[0].Str;
+  }
+  
+  self.bless( filename => $filename, justname => $justname, ext => $ext, filedir => $filedir, basename => $basename, separator => $sep );
 }
 
    
@@ -52,7 +61,7 @@ method print {
 }
 
 
-#Path::Util.test();
+Path::Util.test();
 
 
 
@@ -76,6 +85,20 @@ method getbasename($filename?)
    return ($filename ~~ $basenamereg )[0].Str;
   }
 }
+
+
+method getseparator($filename?)
+{
+  if (self)
+  {
+   return $!separator;
+  }
+  else
+  {
+   return ($filename ~~ $sepreg )[0].Str;
+  }
+}
+
 
 
 method getjustname($filename?)
@@ -142,7 +165,7 @@ if (self)
    $filenamelocal = $filename;
   }
     my $level=0;
-    say $filenamelocal;
+   # say $filenamelocal;
   #  my $m =  ($filenamelocal  ~~ m:g/<[\\\/]><before .>/);
     my @list = comb(/<[\\\/]><before .>/,$filenamelocal);
  #   say +@list;
@@ -211,11 +234,13 @@ say "getdirlevel:"~Path::Util.new("c:\\g\\c.mp4").getdirlevel(1);
 say "getdirlevel2:"~Path::Util.getdirlevel(1,"c:\\g\\c.mp4");
 say "getdirlevel:"~Path::Util.new("c:\\g\\c.mp4").getdirlevel(2);
 say "getdirlevel2:"~Path::Util.getdirlevel(2,"c:\\g\\c.mp4");
-say "separator:"~ self.separator;
+say "fsseparator:"~ Path::Util.fsseparator;
+say "separator:"~ Path::Util.new("c:\\g\\c.mp4").separator;
+say "separator2:"~ Path::Util.getseparator("c:\\g\\c.mp4");
 }
 
 
-method separator
+method fsseparator
 {
 if ($*OS!~~m:i/mswin/)
    {
