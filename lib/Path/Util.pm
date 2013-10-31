@@ -7,6 +7,7 @@ has $.justname;
 has $.ext;
 has $.filedir;
 has $.separator;
+has $.drive;
 
 method extension
 {
@@ -33,6 +34,8 @@ constant $filedirreg = /^(.+)<[\\\/]>/;
 
 constant $sepreg = /(<[\\\/]>)/;
 
+constant $drivereg = /^(<[a..zA..Z]>):/;
+
 method new($filename) {
 
   #definitions
@@ -44,12 +47,20 @@ method new($filename) {
   my $filedir  = ( $filename ~~ $filedirreg )[0].Str;
   my $sep = "";
   
+ 
   if ($filename ~~ $sepreg )
   {
     $sep = $/[0].Str;
   }
   
-  self.bless( filename => $filename, justname => $justname, ext => $ext, filedir => $filedir, basename => $basename, separator => $sep );
+  my $m = $filename ~~ $drivereg;
+ 
+  my $drive  = ($m )?? ($m[0].Str) !!"";
+  
+  
+  
+  
+  self.bless( filename => $filename, justname => $justname, ext => $ext, filedir => $filedir, basename => $basename, separator => $sep, drive => $drive );
 }
 
 
@@ -70,6 +81,22 @@ method getfullfilename
 {
   return $!filename;
 }
+
+
+method getdrive($filename?)
+{
+  if (self)
+  {
+    return $!drive;
+  }
+  else
+  {
+    my $m = $filename ~~ $drivereg;
+    my $drive  = ($m )?? ($m[0].Str) !!"";
+    return $drive;
+  }
+}
+
 
 
 
@@ -237,7 +264,16 @@ method test
   say "fsseparator:"~ Path::Util.fsseparator;
   say "separator:"~ Path::Util.new("c:\\g\\c.mp4").separator;
   say "separator2:"~ Path::Util.getseparator("c:\\g\\c.mp4");
+  say "drive win:"~ Path::Util.new("c:\\g\\c.mp4").drive;
+  say "drive linux:"~ Path::Util.new("/g/c.mp4").drive;
+  say "get drive win:"~ Path::Util.new("c:\\g\\c.mp4").getdrive;
+  say "get drive linux:"~ Path::Util.new("/g/c.mp4").getdrive;
+  say "direct drive win:"~ Path::Util.getdrive("c:\\g\\c.mp4");
+  say "direct drive linux:"~ Path::Util.getdrive("/g/c.mp4");
+
 }
+
+
 
 
 method fsseparator

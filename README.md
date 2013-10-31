@@ -17,6 +17,7 @@ use Path::Util;
 my $p = Path::Util.new("d:\\docs\\usage.txt");<br>
 It can break-up Unix like or Dos like file paths.<br>
 
+say $p.getdrive; or say $p.drive; # it gets the drive letter, for Windwos only. Otherwise, it returns "".
 say $p.getdir; or say $p.directory; or say $p.dir<br>
 say $p.getext; or say $p.extension<br>
 say $p.getbasename;  # returns the filename without directory<br>
