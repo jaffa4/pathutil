@@ -35,6 +35,12 @@ say $p.getnumberofdirlevel; # number of levels in the directory
 
 say $p.getdirlevel(2); # returns directory up to the second level
 
+say $p.tocygwin(); # returns the cygwin format of a Windows path, nothing happens if it is of other kind.<br>
+e.g. /cygdrive/d/music/after.mp4
+
+say $p.tomsys(); # returns the  msysformat of a Windows path, nothing happens if it is of other kind.<br>
+e.g. /d/music/after.mp4
+
 Also, it is possible to use them non-object oriented way. 
 
 say Path::Util.getbasename("d:\\docs\\usage.txt");

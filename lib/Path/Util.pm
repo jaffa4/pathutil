@@ -65,6 +65,7 @@ method new($filename) {
 
 
 method print {
+  say "drive:" ~ $!drive;
   say "filedir:" ~ $!filedir;
   say "basename:" ~ $!basename;
   say "justname:" ~ $!justname;
@@ -270,6 +271,8 @@ method test
   say "get drive linux:"~ Path::Util.new("/g/c.mp4").getdrive;
   say "direct drive win:"~ Path::Util.getdrive("c:\\g\\c.mp4");
   say "direct drive linux:"~ Path::Util.getdrive("/g/c.mp4");
+  say "to cygwin:"~  Path::Util.tocygwin("D:\\g\\c.mp4");
+  say "to msys:"~  Path::Util.tomsys("D:\\g\\c.mp4");
 
 }
 
@@ -286,4 +289,45 @@ method fsseparator
   {
     return '\\';
   }  
+}
+
+
+
+method tocygwin($filename?)
+{
+ my $filenamelocal; 
+  if (self)
+  {
+    $filenamelocal=$!filename;
+  }
+  else
+  {
+    $filenamelocal = $filename;
+  }
+  
+  my $cygwinpath = $filenamelocal.subst(/^(<[a..zA..Z]>)\:(.+)/, {"/cygdrive/"~ (lc $0) ~ $1} );
+ 
+  $cygwinpath.=subst(/\\/,"/",:g);
+  return $cygwinpath;
+ 
+}
+
+
+method tomsys($filename?)
+{
+ my $filenamelocal; 
+  if (self)
+  {
+    $filenamelocal=$!filename;
+  }
+  else
+  {
+    $filenamelocal = $filename;
+  }
+  
+  my $path = $filenamelocal.subst(/^(<[a..zA..Z]>)\:(.+)/, {"/"~ (lc $0) ~ $1} );
+ 
+  $path.=subst(/\\/,"/",:g);
+  return $path;
+
 }
