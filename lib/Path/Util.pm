@@ -220,7 +220,7 @@ method getdirlevel($level,$dirname?)
 
   my $llevel = $level+1;
   #my @list = comb(/<[\\\/]><before .>/,$filenamelocal);
-  say $filenamelocal;
+  #say $filenamelocal;
 
   while ( $filenamelocal ~~ m:c/<[\\\/]><before .>/)
   {
